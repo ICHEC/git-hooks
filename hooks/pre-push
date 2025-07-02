@@ -72,6 +72,16 @@ if [ $?  -ne 0 ]; then
   exit 1
 fi
 
-echo "All checks passed."
+if [ $? -ne 0 ]; then
+	version=`grep version pyproject.toml`
+	read -r major minor patch <<<$(echo $version|sed 's/=/\n/g'|tail -1|sed 's/"//g'|tr '.' ' ')
+	new_version="version = \"$major.$minor.$[patch+1]\""
+	echo Incrementing patch number: old -> $version new -> $new_version
+	echo updating pyproject.toml
+	sed -i "s/$version/$new_version/g" pyproject.toml
+fi
+
+echo "All checks passed. Ready to push"
+
 exit 0
 
